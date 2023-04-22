@@ -6,7 +6,6 @@ In simple terms, if you have a large dataset that you want to average but your c
 Each computer can then calculate the average of their piece of the dataset and send it back to a central node, which can then calculate the overall average of the entire dataset.
 '''
 
-import random
 import numpy as np
 import time
 
@@ -20,7 +19,7 @@ print(data)
 
 # Define the learning rate and the number of iterations
 learning_rate = 0.1
-num_iterations = 100
+num_iterations = 1000
 
 # Initialize the global model
 global_model = np.zeros(data_size)
@@ -31,6 +30,7 @@ for i in range(num_iterations):
     for j in range(num_nodes):
         local_model = data[j]
         local_model -= learning_rate * (local_model - global_model)
+        data[j] = local_model
 
     # Compute the new global model by averaging the local models
     global_model = np.mean(data, axis=0)
