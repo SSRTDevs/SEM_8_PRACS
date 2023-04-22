@@ -1,13 +1,19 @@
 import socket
 
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# create a socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-clientSocket.connect(("localhost" , 3000))
+# connect to the server
+sock.connect(('localhost', 3001))
 
-data = clientSocket.recv(1024)
+# receive data from server
+data = sock.recv(1024)
 
+# print the received data
 print(data.decode())
 
-clientSocket.send("Message from client".encode())
+# send data to server
+sock.send('I must have called a thousand times '.encode())
 
-clientSocket.close()
+# close the connection
+sock.close()
