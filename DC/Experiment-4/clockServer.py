@@ -10,10 +10,10 @@ sock.listen(1)
 
 conn, addr = sock.accept()
 
-
 global_time = 10 
 nodes = 5 
 server_time = 10
+
 while True : 
     time.sleep(5)
     global_time += 5 
@@ -37,6 +37,4 @@ while True :
     print("Sending time corrections...")
     conn.send(json.dumps(adjusted_time).encode())
     print()
-
-
 

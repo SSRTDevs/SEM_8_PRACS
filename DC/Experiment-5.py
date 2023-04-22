@@ -1,78 +1,30 @@
-import time
+import random
 
-class Server:
-    def __init__(self, id, coordinator_id, is_coordinator):
-        self.id = id
-        self.coordinator_id = coordinator_id
-        self.is_coordinator = is_coordinator
-        self.servers = []
+class Cluster:
+    def __init__(self, num_servers):
+        self.coordinator = -1
+        self.num_servers = num_servers
+        self.servers = [i for i in range(num_servers)]
+
+    def start_election(self, node):
+        for i in range(self.num_servers):
+            if(i > node):
+                print(f"Server {node} is sending election message to Server {i}")
         
-    def add_server(self, server):
-        self.servers.append(server)
+        for i in range(self.num_servers):
+            if(i > node):
+                self.coordinator = self.start_election(i)
         
-    def start_election(self):
-        for server in self.servers:
-            if server.id > self.id:
-                print(f"Server {self.id} sending 'Election' message to server {server.id}")
-                server.receive_election(self.id)
-                
-        self.coordinator_id = self.id
-        for server in self.servers:
-            if server.id != self.id and server.id > self.coordinator_id:
-                print(f"Server {self.id} sending 'Coordinator' message to server {server.id}")
-                server.receive_coordinator(self.id)
-                self.coordinator_id = server.id
-                
-        if self.coordinator_id == self.id:
-            self.is_coordinator = True
-            print(f"Server {self.id} is the new coordinator!")
-        else:
-            self.is_coordinator = False
-        
-    def receive_election(self, candidate_id):
-        print(f"Server {self.id} received 'Election' message from server {candidate_id}")
-        time.sleep(2)
-        for server in self.servers:
-            if server.id > self.id:
-                print(f"Server {self.id} forwarding 'Election' message to server {server.id}")
-                server.receive_election(candidate_id)
-                
-        self.coordinator_id = candidate_id
-                
-        print(f"Server {self.id} sending 'Coordinator' message to server {candidate_id}")
-        candidate_server = next(server for server in self.servers if server.id == candidate_id)
-        candidate_server.receive_coordinator(self.id)
+        if(self.coordinator!=-1 and node < self.coordinator):
+            print(f"Server {self.coordinator} is sending coordinator message to Server {node}")
+
+        return node
     
-    def receive_coordinator(self, coordinator_id):
-        print(f"Server {self.id} received 'Coordinator' message from server {coordinator_id}")
-        self.coordinator_id = coordinator_id
-        self.is_coordinator = False
+cluster = Cluster(6)
+start_server = random.randint(0 , cluster.num_servers - 1)
+cluster.start_election(start_server)
 
-
-# Create servers
-server1 = Server(1, None, False)
-server2 = Server(2, None, False)
-server3 = Server(3, None, False)
-server4 = Server(4, None, False)
-server5 = Server(5, None, False)
-
-servers = [server1,server2,server3,server4,server5]
-# Add servers to each other's lists of servers
-for i in range(len(servers)):
-    for j in range(len(servers)):
-        if i != j:
-            servers[i].add_server(servers[j])
-
-# Start an election on server 5
-print("Starting an election on server 3")
-server3.start_election()
-
-# Print the new coordinator
-print(f"The new coordinator is {server3.coordinator_id}")
-
-
-
-
+print(f"Now the coordinator is {cluster.coordinator}")
 
 '''
 class Server:
