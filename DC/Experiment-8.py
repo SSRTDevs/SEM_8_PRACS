@@ -1,3 +1,4 @@
+# Bankers algorithm 
 def main():
     processes = int(input("number of processes : "))
     resources = int(input("number of resources : "))
@@ -24,12 +25,12 @@ def main():
         safe = False
         for i in range(processes):
             if running[i]:
-                executing = True
+                can_be_executed = True
                 for j in range(resources):
                     if max_need[i][j] - currently_allocated[i][j] > available[j]:
-                        executing = False
+                        can_be_executed = False
                         break
-                if executing:
+                if can_be_executed:
                     print(f"process {i + 1} is executing")
                     running[i] = False
                     count -= 1
