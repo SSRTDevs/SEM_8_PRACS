@@ -1,41 +1,66 @@
-processes = int(input("Enter number of processes : "))
-resources = int(input("Enter number of resources : "))
+# In this algorithm instead of using timestamps I am using priority numbers 
+import threading
+import time
+import random
 
-print(f"\nEnter allocated resources for each process : \n")
-allocated = [[int(i) for i in input(f"Process {j+1} : ").split()] for j in range(processes)]
+class Request:
+    def __init__(self, id, priority):
+        self.process_id = id
+        self.priority = priority
+        self.ack_cnt = set()
 
-print(f"\nEnter maximum resources for each process : \n")
-max_need = [[int(i) for i in input(f"Process {j+1} : ").split()] for j in range(processes)]
+    def acknowledged(self, id):
+        self.ack_cnt.add(id)
 
-print(f"\nEnter available resources : \n")
-available = [int(x) for x in input().split()]
+class Node(threading.Thread):
+    def __init__(self, id, num_nodes, priority, requesting):
+        super().__init__()
+        self.id, self.num_nodes, self.priority, self.requesting = id, num_nodes, priority, requesting
+        self.reply_queue, self.request = [], Request(id, priority)
 
-safe_sequence = []
-visited = [0] * processes
+    # Threading class function which has been overriden here 
+    def run(self):
+        time.sleep(1)
+        if self.requesting: self.request_critical_section()
 
-def can_allocate_resources(i):
-    for j in range(resources):
-        if max_need[i][j] - allocated[i][j] > available[j]:
+    def can_access_critical_section(self):
+        return len(self.request.ack_cnt) == self.num_nodes - 1
+
+    def request_critical_section(self):
+        print(f"Node {self.id}: requesting critical section...")
+        for i in range(self.num_nodes):
+            if i == self.id: continue
+            if not self.send_request(i): return
+            self.request.acknowledged(i)
+        if self.can_access_critical_section(): self.enter_critical_section()
+    
+    def send_request(self, id):
+        node = nodes[id]
+        if node.requesting and self.priority < node.priority:
+            node.reply_queue.append(self.id)
             return False
-    return True
+        return True
 
-def release_resources(i):
-    for j in range(resources):
-        available[j] += allocated[i][j]
-    visited[i] = 1
-    safe_sequence.append(i)
+    def enter_critical_section(self):
+        print(f"Node {self.id}: entered critical section.")
+        time.sleep(3)
+        self.exit_critical_section()
 
-while visited.count(0) != 0:
-    not_found = True
-    for i in range(processes):
-        if visited[i] == 0 and can_allocate_resources(i) == True:
-            release_resources(i)
-            not_found = False
-            
-    if not_found:
-        break
+    def exit_critical_section(self):
+        print(f"Node {self.id}: exited critical section.")
+        self.requesting = False
+        for i in self.reply_queue:
+            nodes[i].request.acknowledged(self.id)
+            if nodes[i].can_access_critical_section(): nodes[i].enter_critical_section()
+        self.reply_queue = []
 
-if len(safe_sequence) == processes:
-    print(f"\nThe processes are in safe state and the safe sequence is : {safe_sequence}")
-else:
-    print("\nThe processes are in an unsafe state")
+num_nodes = 5
+priorities = random.sample(range(1, num_nodes+1), num_nodes)
+requesting = [random.choice([True, False]) for _ in range(num_nodes)]
+nodes = [Node(i, num_nodes, priorities[i], requesting[i]) for i in range(num_nodes)]
+
+# Since Node class extends Threading we can directly use functions like start and join with each instance 
+for node in nodes: node.start()
+
+# Wait for all threads to finish
+for node in nodes: node.join()
