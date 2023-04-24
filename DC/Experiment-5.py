@@ -17,11 +17,12 @@ class Cluster:
         
         if(self.coordinator!=-1 and node < self.coordinator):
             print(f"Server {self.coordinator} is sending coordinator message to Server {node}")
-
+        
         return node
     
 cluster = Cluster(6)
 start_server = random.randint(0 , cluster.num_servers - 1)
+print(f"Server {start_server} started the election process...")
 cluster.start_election(start_server)
 
 print(f"Now the coordinator is {cluster.coordinator}")

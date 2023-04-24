@@ -19,7 +19,7 @@ print(data)
 
 # Define the learning rate and the number of iterations
 learning_rate = 0.1
-num_iterations = 1000
+num_iterations = 50
 
 # Initialize the global model
 global_model = np.zeros(data_size)

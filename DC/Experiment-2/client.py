@@ -1,10 +1,30 @@
 import socket
+import threading
 
-multicast_group = ('224.3.29.71', 10000)
+host = "192.168.100.12"
+port = 9922
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((host, port))
 
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 1)
+print("\nConnected to the server {}".format(host))
 
-message = "From client"
-sock.sendto(message.encode(), multicast_group)
+def receive_msgs():
+    while True:
+        try:
+            msg = client.recv(1024)
+            print(msg.decode("utf-8"))
+            print()
+
+        except:
+            client.close()
+            break
+
+thread = threading.Thread(target=receive_msgs)
+thread.start()
+
+while True:
+    print()
+    message = input()
+    client.send(message.encode("utf-8"))
+
