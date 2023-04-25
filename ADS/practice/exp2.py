@@ -22,4 +22,3 @@ df = pd.read_csv("../loan_data_set.csv")
 # non_missing_education = df[col][df[col].notnull()]
 # imputed_education = np.random.choice(non_missing_education, size=df_imputed[col].isnull().sum())
 # df_imputed.loc[df_imputed[col].isnull(), col] = imputed_education
-
