@@ -55,7 +55,7 @@ class Node(threading.Thread):
         self.reply_queue = []
 
 num_nodes = 5
-priorities = random.sample(range(1, num_nodes+1), num_nodes)
+priorities = random.sample(range(1, num_nodes + 1), num_nodes)
 requesting = [random.choice([True, False]) for _ in range(num_nodes)]
 nodes = [Node(i, num_nodes, priorities[i], requesting[i]) for i in range(num_nodes)]
 
